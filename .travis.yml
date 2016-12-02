@@ -10,4 +10,5 @@ script:
 - python manage.py test
 - flake8
 notifications:
-  slack: rockstarz-team:3q5jXHqZrgq1rhqETX0OUcy9#build
+- email: false
+- slack: rockstarz-team:3q5jXHqZrgq1rhqETX0OUcy9#build
