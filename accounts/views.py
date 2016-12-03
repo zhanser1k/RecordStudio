@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import Http404
-from django.shortcuts import render, redirect, render_to_response
+from django.shortcuts import render, redirect
 from django.template.context_processors import csrf
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -42,13 +42,13 @@ class ForgetPasswordView(View):
 
             except ObjectDoesNotExist:
                 args['NoUserFound'] = "Почтовый ящик или логин не найдены."
-                return render_to_response("accounts/forget.html", args)
+                return render(request, "accounts/forget.html", args)
 
         except ValidationError:
             args['validation'] = "Неверный формат почтового адреса"
-            return render_to_response("accounts/forget.html", args)
+            return render(request, "accounts/forget.html", args)
 
-    def password_generating_method(self, size=8, chars=string.ascii_uppercase + string.digits):
+    def password_generating_method(self, size=8, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
         return ''.join(random.choice(chars) for _ in range(size))
 
 
@@ -75,11 +75,11 @@ class UserAuthenticationView(View):
                 raise Http404()
         else:
             args['login_error'] = "Ошибка авторизации"
-            return render_to_response("accounts/login.html", args)
+            return render(request, "accounts/login.html", args)
 
     def logout(self):
         auth.logout(self)
-        return redirect("/")
+        return redirect("/accounts/login")
 
 
 class CustomerProfileView(View):
@@ -153,7 +153,7 @@ class UserRegistrationView(View):
                                   hash_code=__new_hash)
             else:
                 args['form'] = new_user_form
-                return render_to_response('accounts/register.html', args)
+                return render(request, 'accounts/register.html', args)
 
         return render(request, 'accounts/register.html')
 
@@ -178,28 +178,28 @@ class ConfirmEmailView(View):
             if datetime.now(timezone.utc) > expired_date:
                 args['expired'] = "This Link is expired"
                 args['username'] = username
-                return render_to_response('accounts/confirm.html', args)
+                return render(request, 'accounts/confirm.html', args)
 
             # Выбросит ошибку, если хеш код не совпадает хешу пользователя
             if not hash_of_user == hash_code:  # В конце кадой ссылки идет слеш "/", который мешает проверке
                 args['fail'] = "No hash code like this"
-                return render_to_response('accounts/confirm.html', args)
+                return render(request, 'accounts/confirm.html', args)
 
             # Если пользователь уже активирован, то снова выбросит ошибку
             if user.is_active:
                 args['alreadydone'] = "You have already confirmed your email"
-                return render_to_response('accounts/confirm.html', args)
+                return render(request, 'accounts/confirm.html', args)
 
             # Если все условия соблюдены, то активируем юзера и выбрасываем сообщение об успешной активации
             user.is_active = True
             user.save()
             args['success'] = "You have confirmed your email"
-            return render_to_response('accounts/confirm.html', args)
+            return render(request, 'accounts/confirm.html', args)
 
         # Ловим ошибку, если пользователь или его хеш не найдены.
         except ObjectDoesNotExist:
             args['fail'] = "No hash code like this"
-            return render_to_response('accounts/confirm.html', args)
+            return render(request, 'accounts/confirm.html', args)
 
     def resend_email(self):
         username = self.GET['username']
@@ -219,13 +219,13 @@ class PasswordChangeView(View):
         args = {}
         args.update(csrf(request))
         args['user'] = request.user
-        return render_to_response("accounts/settings.html", args)
+        return render(request, "accounts/settings.html", args)
 
     def post(self, request):
         args = {}
         args.update(csrf(request))
         if not request.POST['old_password'] == "" \
-                and not request.POST['new_password1'] == ""\
+                and not request.POST['new_password1'] == "" \
                 and not request.POST['new_password2'] == "":
 
             form = PasswordChangeForm(user=request.user, data=request.POST)
@@ -241,7 +241,7 @@ class PasswordChangeView(View):
                 args['error'] = form.errors
 
             args['user'] = request.user
-            return render_to_response("accounts/settings.html", args)
+            return render(request, "accounts/settings.html", args)
 
         if request.user.check_password(request.POST["old_password"]):
             request.user.first_name = request.POST["first_name"]
@@ -252,4 +252,4 @@ class PasswordChangeView(View):
 
         args['user'] = request.user
         args['error'] = "Неверный пароль"
-        return render_to_response("accounts/settings.html", args)
+        return render(request, "accounts/settings.html", args)
