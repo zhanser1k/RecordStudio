@@ -58,15 +58,16 @@
           {% csrf_token %}
           <label for="start">Начало записи</label>
           <div class="input-group clockpicker" data-align="top" data-autoclose="true">
-            <input type="text" name="start" class="form-control" value="00:00">
+            <input type="text" data-validate="time" name="start" class="form-control" value="00:00">
             <span class="input-group-addon">
               <span class="glyphicon glyphicon-time"></span>
             </span>
           </div>
+          <br>
           <input type="text" onloadstart="{{ date.isocalendar }}" name="date" value="{{ date.isoformat }}"  hidden="hidden" id="date">
           <label for="end">Конец записи</label>
           <div class="input-group clockpicker" data-align="top" data-autoclose="true">
-            <input type="text" name="end" class="form-control" value="00:00">
+            <input type="text" data-validate="time" name="end" class="form-control" value="00:00">
             <span class="input-group-addon">
               <span class="glyphicon glyphicon-time"></span>
             </span>
