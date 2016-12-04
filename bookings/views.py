@@ -115,7 +115,7 @@ def create_booking(request, soundman_id):
         except ValueError:
             return HttpResponse("You are not so smart though")
 
-        date = parse_date(__date_for_booking)
+        date = __date_for_booking
         schedule = Schedule.objects.all().filter(soundman=soundman, working_day=date.isoweekday()).first()
         user = request.user
         bookings = Booking.objects.all().filter(date=date, schedule=schedule,
