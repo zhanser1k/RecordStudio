@@ -175,19 +175,19 @@ class ConfirmEmailView(View):
             hash_of_user = SecretHashCode.objects.get(user_id=user.pk).hashcode
             expired_date = SecretHashCode.objects.get(user_id=user.pk).expired_date
 
-            if datetime.now(timezone.utc) > expired_date:
-                args['expired'] = "This Link is expired"
-                args['username'] = username
-                return render(request, 'accounts/confirm.html', args)
-
-            # Выбросит ошибку, если хеш код не совпадает хешу пользователя
-            if not hash_of_user == hash_code:  # В конце кадой ссылки идет слеш "/", который мешает проверке
-                args['fail'] = "No hash code like this"
-                return render(request, 'accounts/confirm.html', args)
-
             # Если пользователь уже активирован, то снова выбросит ошибку
             if user.is_active:
                 args['alreadydone'] = "You have already confirmed your email"
+                return render(request, 'accounts/confirm.html', args)
+
+            # Выбросит ошибку, если хеш код не совпадает хешу пользователя
+            elif not hash_of_user == hash_code:  # В конце кадой ссылки идет слеш "/", который мешает проверке
+                args['fail'] = "No hash code like this"
+                return render(request, 'accounts/confirm.html', args)
+
+            elif datetime.now(timezone.utc) > expired_date:
+                args['expired'] = "This Link is expired"
+                args['username'] = username
                 return render(request, 'accounts/confirm.html', args)
 
             # Если все условия соблюдены, то активируем юзера и выбрасываем сообщение об успешной активации
@@ -249,7 +249,8 @@ class PasswordChangeView(View):
             request.user.email = request.POST["email"]
             request.user.save()
             args['success'] = 'Success'
+        else:
+            args['error'] = "Неверный пароль"
 
         args['user'] = request.user
-        args['error'] = "Неверный пароль"
         return render(request, "accounts/settings.html", args)
