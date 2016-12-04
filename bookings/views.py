@@ -3,6 +3,7 @@ from datetime import datetime, timezone, date, timedelta
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.context_processors import csrf
 from django.utils.dateparse import parse_date
@@ -108,7 +109,13 @@ def create_booking(request, soundman_id):
     if request.method == "POST":
         start = request.POST['start']
         end = request.POST['end']
-        date = __date_for_booking
+        try:
+            datetime.strptime(start, '%H:%M')
+            datetime.strptime(end, '%H:%M')
+        except ValueError:
+            return HttpResponse("You are not so smart though")
+
+        date = parse_date(__date_for_booking)
         schedule = Schedule.objects.all().filter(soundman=soundman, working_day=date.isoweekday()).first()
         user = request.user
         bookings = Booking.objects.all().filter(date=date, schedule=schedule,
