@@ -98,7 +98,8 @@ class SoundmanAddView(View):
             new_user.save()
             Group.objects.get(name='Soundmans').user_set.add(new_user)
 
-            return send_email(email=request.POST['email'],
+            return send_email(type='newsoundman',
+                              email=request.POST['email'],
                               username=request.POST['username'],
                               password=__new_password_of_soundman,
                               first_name=request.POST['first_name'],

@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_date
 from django.utils.dateparse import parse_time
 
 from bookings.models import Booking, Schedule, Record
+from emailer.views import send_email
 
 
 def home(request):
@@ -265,4 +266,7 @@ def cancel_booking(request, booking_id):
     booking_object = Booking.objects.get(id=booking_id)
     booking_object.is_active = 4
     booking_object.save()
-    return redirect('/accounts/my_profile')
+    emailSoundman = booking_object.schedule.soundman.email
+    emailUser = booking_object.user.email
+    send_email(emailUser=emailUser, emailSoundman=emailSoundman)
+    return redirect('/accounts/my_profike')

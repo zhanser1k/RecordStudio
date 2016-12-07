@@ -38,6 +38,7 @@
       {% if today_schedule %}
       <div id="working_day_schedule" class="col-md-3 show_shedule top-margin">
         {% for schedule in today_schedule %}
+        <p><b>Выбранная дата:</b> {{ date }}</p>
         <p><b>День недели:</b> {{ schedule.get_working_day_display }}</p>
         <p><b>Начало рабочего дня:</b> {{ schedule.start_of_the_day.isoformat }}</p>
         <p><b>Конец рабочего дня:</b> {{ schedule.end_of_the_day.isoformat }}</p>

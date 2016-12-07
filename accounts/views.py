@@ -38,7 +38,7 @@ class ForgetPasswordView(View):
                 __new_password = self.password_generating_method()
                 user.set_password(__new_password)
                 user.save()
-                return send_email(email=email, username=user.username, password=__new_password)
+                return send_email(type='forgetPassword', email=email, username=user.username, password=__new_password)
 
             except ObjectDoesNotExist:
                 args['NoUserFound'] = "Почтовый ящик или логин не найдены."
@@ -145,7 +145,8 @@ class UserRegistrationView(View):
 
                 # auth.login(request, new_user)
                 __new_hash = SecretHashCode.objects.get(user_id=new_user.pk).hashcode
-                return send_email(email=new_user_form.cleaned_data['email'],
+                return send_email(type='register',
+                                  email=new_user_form.cleaned_data['email'],
                                   username=new_user_form.cleaned_data['username'].lower(),
                                   password=new_user_form.cleaned_data['password2'],
                                   first_name=new_user_form.cleaned_data['first_name'],
@@ -211,7 +212,7 @@ class ConfirmEmailView(View):
                        ).save()
         email = user.email
         hash_code = user.hashcode
-        return send_email(username=username, email=email, hash_code=hash_code)
+        return send_email(type='resend', username=username, email=email, hash_code=hash_code)
 
 
 class PasswordChangeView(View):
