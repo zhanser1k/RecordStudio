@@ -268,5 +268,5 @@ def cancel_booking(request, booking_id):
     booking_object.save()
     emailSoundman = booking_object.schedule.soundman.email
     emailUser = booking_object.user.email
-    send_email(emailUser=emailUser, emailSoundman=emailSoundman)
-    return redirect('/accounts/my_profike')
+    send_email(type='cancel', emailUser=emailUser, emailSoundman=emailSoundman)
+    return redirect('/accounts/my_profile')
