@@ -3,7 +3,7 @@
 {% load staticfiles %}
 {% csrf_token %}
 {% block title %}
-<title>RS | Администратор</title>
+    <title>RS | Администратор</title>
 {% endblock %}
 {% block sidebar_color %}
     <div class="sidebar" data-color="blue" data-image="{% static 'dashboard-assets/img/sidebar-1.jpg' %}">
@@ -11,88 +11,92 @@
 {% endblock %}
 
 {% block nav-active %}
-            <ul class="nav">
-                <li class="active">
-                    <a href="">
-                        <i class="pe-7s-note2"></i>
-                        <p>Записи</p>
-                    </a>
-                </li>
-                <li>
-                    <a href="/staff/add/">
-                        <i class="pe-7s-user"></i>
-                        <p>Добавить сотрудника</p>
-                    </a>
-                </li>
-            </ul>
-            {% endblock %}
+    <ul class="nav">
+        <li class="active">
+            <a href="">
+                <i class="pe-7s-note2"></i>
+                <p>Записи</p>
+            </a>
+        </li>
+        <li>
+            <a href="/staff/add/">
+                <i class="pe-7s-user"></i>
+                <p>Добавить сотрудника</p>
+            </a>
+        </li>
+    </ul>
+{% endblock %}
 
 {% block table_title %}
     <a class="navbar-brand" href="#">Панель Администратора | Список броней</a>
 {% endblock %}
 {% block main-content %}
-<div class="content">
-<div class="container-fluid">
-  <div class="row">
-      <div class="col-md-12">
-          <div class="card">
-              <div class="header">
-                <form name="profile" method="POST">
-                  {% csrf_token %}
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="input-group date">
-                        <input placeholder="Выберите дату" type="text" name="date" class="form-control"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
-                      </div>
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="header">
+                            <form name="profile" method="POST">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="input-group date">
+                                            <input placeholder="Выберите дату" type="text" name="date"
+                                                   class="form-control"><span class="input-group-addon"><i
+                                                class="glyphicon glyphicon-th"></i></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 text-left">
+                                        <button class="btn btn-fill btn-success" type="submit">Поиск</button>
+                                        <button class="btn btn-fill btn-danger" name="cancel"
+                                                onclick="javascript:window.location='my_profile'">Отмена
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                      <div class="col-md-6 text-left">
-                        <button class="btn btn-fill btn-success" type="submit">Поиск</button>
-                        <button class="btn btn-fill btn-danger" name="cancel" onclick="javascript:window.location='my_profile'">Отмена</button>
-                      </div>
-                    </div>
-                    </form>
-                  </div>
-              </div>
-              <div class="content table-responsive table-full-width">
-                  <table class="table table-hover table-striped">
+                    <div class="content table-responsive table-full-width">
+                        <table class="table table-hover table-striped">
 
-                      <thead>
-                        <th>Дата</th>
-                        <th>Время начала</th>
-                        <th>Пользователь</th>
-                        <th>Звукорежиссер</th>
-                        <th>Оплата</th>
-                        <th>Статус брони</th>
-                      </thead>
-                      <tbody>
-                    {% for booking in allBookings %}
-                        <tr>
-                            <td>{{ booking.date }}</td>
-                            <td>{{ booking.start }}</td>
-                            <td>{{ booking.user.first_name }} {{booking.user.last_name }} </td>
-                            <td>{{ booking.schedule.soundman.first_name}} {{booking.schedule.soundman.last_name }}</td>
-                            <td>{{ Records.filter|money_back:booking.id}}</td>
-                            <td>{{ booking.get_is_active_display }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                  </table>
-              </div>
-          </div>
-      </div>
-  </div>
-</div>
-</div>
+                            <thead>
+                            <th>Дата</th>
+                            <th>Время начала</th>
+                            <th>Пользователь</th>
+                            <th>Звукорежиссер</th>
+                            <th>Оплата</th>
+                            <th>Статус брони</th>
+                            </thead>
+                            <tbody>
+                            {% for booking in allBookings %}
+                                <tr>
+                                    <td>{{ booking.date }}</td>
+                                    <td>{{ booking.start }}</td>
+                                    <td>{{ booking.user.first_name }} {{ booking.user.last_name }} </td>
+                                    <td>{{ booking.schedule.soundman.first_name }} {{ booking.schedule.soundman.last_name }}</td>
+                                    <td>{{ Records.filter|money_back:booking.id }}</td>
+                                    <td>{{ booking.get_is_active_display }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
 {% endblock %}
 {% block custom_scripts %}
-<script>
-$('.input-group.date').datepicker({
-format: "yyyy-mm-dd",
-language: "ru",
-autoclose: true,
-todayHighlight: true,
-orientation: "bottom auto",
-defaultDate: new Date()
-});
-</script>
+    <script>
+        $('.input-group.date').datepicker({
+            format: "yyyy-mm-dd",
+            language: "ru",
+            autoclose: true,
+            todayHighlight: true,
+            orientation: "bottom auto",
+            defaultDate: new Date()
+        });
+    </script>
 {% endblock %}
