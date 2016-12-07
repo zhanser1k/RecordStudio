@@ -1,20 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<form method="POST">
-    {% csrf_token %}
-    <p>Name</p><input type="text" name="first_name"> <br />
-    <p>Surname </p><input type="text" name="last_name"> <br />
-    <p>Login </p><input type="text" name="username"> <br />
-    <p>Email </p><input type="text" name="email"> <br />
-    <input type="submit"> <br />
-    {% if form.errors %}
-        {{ form.errors }}
-    {% endif %}
-</form>
-</body>
-</html>
+{% extends "staff/dashboard_base.html" %}
+{% load bookings_extras %}
+{% load staticfiles %}
+{% csrf_token %}
+{% block title %}
+    <title>RS | Администратор</title>
+{% endblock %}
+{% block sidebar_color %}
+    <div class="sidebar" data-color="blue" data-image="{% static 'dashboard-assets/img/sidebar-1.jpg' %}">
+    <!--   the color of the sidebar using: data-color="blue | azure | green | orange | red | purple" -->
+{% endblock %}
+
+{% block nav-active %}
+    <ul class="nav">
+        <li>
+            <a href="/staff/profile">
+                <i class="pe-7s-note2"></i>
+                <p>Записи</p>
+            </a>
+        </li>
+        <li class="active">
+            <a href="!#">
+                <i class="pe-7s-user"></i>
+                <p>Добавить сотрудника</p>
+            </a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block table_title %}
+    <a class="navbar-brand" href="#">Панель Администратора | Список броней</a>
+{% endblock %}
+{% block main-content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="first_name">Имя:</label>
+                            <input type="text" class="form-control" name="first_name" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Фамилия:</label>
+                            <input type="text" class="form-control" name="last_name" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Имя пользователя:</label>
+                            <input type="text" class="form-control" name="username" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="text" class="form-control" name="email" required/>
+                        </div>
+                        <div class="settings-buttons text-right">
+                            <button class="btn btn-fill btn-success" type="submit">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}

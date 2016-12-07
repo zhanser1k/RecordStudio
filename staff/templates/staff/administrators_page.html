@@ -3,7 +3,32 @@
 {% load staticfiles %}
 {% csrf_token %}
 {% block title %}
-<title>RS | Admin Page</title>
+<title>RS | Администратор</title>
+{% endblock %}
+{% block sidebar_color %}
+    <div class="sidebar" data-color="blue" data-image="{% static 'dashboard-assets/img/sidebar-1.jpg' %}">
+    <!--   the color of the sidebar using: data-color="blue | azure | green | orange | red | purple" -->
+{% endblock %}
+
+{% block nav-active %}
+            <ul class="nav">
+                <li class="active">
+                    <a href="">
+                        <i class="pe-7s-note2"></i>
+                        <p>Записи</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="/staff/add/">
+                        <i class="pe-7s-user"></i>
+                        <p>Добавить сотрудника</p>
+                    </a>
+                </li>
+            </ul>
+            {% endblock %}
+
+{% block table_title %}
+    <a class="navbar-brand" href="#">Панель Администратора | Список броней</a>
 {% endblock %}
 {% block main-content %}
 <div class="content">
@@ -21,8 +46,8 @@
                       </div>
                     </div>
                       <div class="col-md-6 text-left">
-                        <button class="btn btn-fill btn-info" type="submit">Поиск</button>
-                        <button class="btn btn-fill" name="cancel" onclick="javascript:window.location='my_profile'">Отмена</button>
+                        <button class="btn btn-fill btn-success" type="submit">Поиск</button>
+                        <button class="btn btn-fill btn-danger" name="cancel" onclick="javascript:window.location='my_profile'">Отмена</button>
                       </div>
                     </div>
                     </form>

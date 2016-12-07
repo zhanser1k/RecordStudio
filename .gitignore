@@ -6,5 +6,7 @@ bookings/migrations/__pycache__
 bookings/templatetags/__pycache__
 bookings/__pycache__
 emailer/__pycache__
+staff/__pycache__
+staff/migrations/__pycache__
 records/migrations/__pycache__
 records/__pycache__
