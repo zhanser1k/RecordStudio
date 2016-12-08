@@ -269,4 +269,6 @@ def cancel_booking(request, booking_id):
     emailSoundman = booking_object.schedule.soundman.email
     emailUser = booking_object.user.email
     send_email(type='cancel', emailUser=emailUser, emailSoundman=emailSoundman)
-    return redirect('/accounts/my_profile')
+    if request.user.groups.filter(name="Customers").exists():
+        return redirect('/accounts/my_profile')
+    return redirect('/staff/profile')
