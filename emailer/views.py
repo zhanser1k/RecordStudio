@@ -11,7 +11,7 @@ def send_email(**kwargs):
         email = kwargs['email']
         username = kwargs['username']
         __hash_code = kwargs['hash_code']
-        message = "http://127.0.0.1:8000/accounts/confirm?username=%s&hash=%s" % (username, __hash_code)
+        message = "http://recordstudio.pythonanywhere.com/accounts/confirm?username=%s&hash=%s" % (username, __hash_code)
         args['register'] = "Вы успешно зарегестрировались на сайте. Осталось подтвердить email"
 
     elif kwargs['type'] is 'newsoundman':
@@ -26,7 +26,7 @@ def send_email(**kwargs):
         username = kwargs['username']
         email = kwargs['email']
         hash_code = kwargs['hash_code']
-        message = "http://127.0.0.1:8000/accounts/confirm?username=%s&hash=%s" % (username, hash_code)
+        message = "http://recordstudio.pythonanywhere.com/accounts/confirm?username=%s&hash=%s" % (username, hash_code)
         args['resent'] = "Ссылка для потдверждения почты была отправлена на вашу почту"
 
     # Send forget password mail
@@ -42,7 +42,7 @@ def send_email(**kwargs):
         email = [kwargs['emailUser'], kwargs['emailSoundman']]
         args['newsoundman_is_added'] = 'Новый пользователь успешно создан!'
     try:
-        mail.send_mail('Subject here', message, settings.EMAIL_HOST_USER, [email], fail_silently=False)
+        mail.send_mail('Subject here', message, settings.EMAIL_HOST_USER, email, fail_silently=False)
         return render_to_response("emailer/successful_page.html", args)
     except Exception:
         args['email_error'] = "Ошибка при отправке письма на email"
