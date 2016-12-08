@@ -1,12 +1,3 @@
 .idea
-RecordStudio/__pycache__
-accounts/__pycache__
-accounts/migrations/__pycache__
-bookings/migrations/__pycache__
-bookings/templatetags/__pycache__
-bookings/__pycache__
-emailer/__pycache__
-staff/__pycache__
-staff/migrations/__pycache__
-records/migrations/__pycache__
-records/__pycache__
+__pycache__
+db.sqlite3
