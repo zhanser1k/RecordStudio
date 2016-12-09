@@ -31,8 +31,8 @@ class ForgetPasswordView(View):
         args = {}
         args.update(csrf(request))
         try:
-            validate_email(request.POST['email'])
             email = request.POST['email']
+            validate_email(email.rstrip())
             try:
                 user = User.objects.get(email=email)
                 __new_password = self.password_generating_method()
@@ -61,8 +61,10 @@ class UserAuthenticationView(View):
     def post(self, request):
         args = {}
         args.update(csrf(request))
-        user = authenticate(username=request.POST['username'].lower(),
-                            password=request.POST['password'])
+        user = authenticate(
+            username=request.POST['username'].lower(),
+            password=request.POST['password']
+        )
 
         if user is not None and user.is_active:
             if user.groups.filter(name="Customers").exists():
@@ -72,7 +74,8 @@ class UserAuthenticationView(View):
                 except Exception:
                     return redirect('/')
             else:
-                raise Http404()
+                auth.login(request, user)
+                return redirect('/staff')
         else:
             args['login_error'] = "Ошибка авторизации"
             return render(request, "accounts/login.html", args)
@@ -91,7 +94,8 @@ class CustomerProfileView(View):
                 "bookings": Booking.objects.filter(user=user_id).order_by('date'),
             }
             return render(request, "accounts/profile.html", context)
-        raise Http404()
+        else:
+            return redirect('/staff')
 
     @method_decorator(login_required)
     def post(self, request):
@@ -126,37 +130,39 @@ class UserRegistrationView(View):
             args['form'] = UserCreationForm()
             new_user_form = UserCreationForm(request.POST)
             if new_user_form.is_valid():
-                new_user = User.objects.create_user(username=new_user_form.cleaned_data['username'].lower(),
-                                                    first_name=new_user_form.cleaned_data['first_name'],
-                                                    last_name=new_user_form.cleaned_data['last_name'],
-                                                    email=new_user_form.cleaned_data['email'],
-                                                    )
+                new_user = User.objects.create_user(
+                    username=new_user_form.cleaned_data['username'].lower().rstrip(),
+                    first_name=new_user_form.cleaned_data['first_name'].rstrip(),
+                    last_name=new_user_form.cleaned_data['last_name'].rstrip(),
+                    email=new_user_form.cleaned_data['email'].rstrip(),
+                )
 
                 new_user.set_password(new_user_form.cleaned_data["password2"])  # хеширует пароль :С
                 new_user.is_active = False
                 new_user.save()
                 Group.objects.get(name='Customers').user_set.add(new_user)
 
-                SecretHashCode(user_id=new_user.pk,
-                               hashcode=''.join(
-                                   random.choice(string.ascii_uppercase + string.digits) for _ in range(12)),
-                               expired_date=datetime.now(timezone.utc) + timedelta(minutes=60)
-                               ).save()
-
+                SecretHashCode(
+                    user_id=new_user.pk,
+                    hashcode=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(12)),
+                    expired_date=datetime.now(timezone.utc) + timedelta(minutes=60)
+                ).save()
                 # auth.login(request, new_user)
                 __new_hash = SecretHashCode.objects.get(user_id=new_user.pk).hashcode
-                return send_email(type='register',
-                                  email=new_user_form.cleaned_data['email'],
-                                  username=new_user_form.cleaned_data['username'].lower(),
-                                  password=new_user_form.cleaned_data['password2'],
-                                  first_name=new_user_form.cleaned_data['first_name'],
-                                  last_name=new_user_form.cleaned_data['last_name'],
-                                  hash_code=__new_hash)
+                return send_email(
+                    type='register',
+                    email=new_user_form.cleaned_data['email'],
+                    username=new_user_form.cleaned_data['username'].lower(),
+                    password=new_user_form.cleaned_data['password2'],
+                    first_name=new_user_form.cleaned_data['first_name'],
+                    last_name=new_user_form.cleaned_data['last_name'],
+                    hash_code=__new_hash
+                )
             else:
                 args['form'] = new_user_form
                 return render(request, 'accounts/register.html', args)
 
-        return render(request, 'accounts/register.html')
+        raise Http404()
 
 
 class ConfirmEmailView(View):
@@ -178,23 +184,23 @@ class ConfirmEmailView(View):
 
             # Если пользователь уже активирован, то снова выбросит ошибку
             if user.is_active:
-                args['alreadydone'] = "You have already confirmed your email"
+                args['alreadydone'] = "Вы уже успешно подтвердили пароль"
                 return render(request, 'accounts/confirm.html', args)
 
             # Выбросит ошибку, если хеш код не совпадает хешу пользователя
             elif not hash_of_user == hash_code:  # В конце кадой ссылки идет слеш "/", который мешает проверке
-                args['fail'] = "No hash code like this"
+                args['fail'] = "Ссылка, по которой вы перешли, нерабочая!"
                 return render(request, 'accounts/confirm.html', args)
 
             elif datetime.now(timezone.utc) > expired_date:
-                args['expired'] = "This Link is expired"
+                args['expired'] = "Ссылка устарела"
                 args['username'] = username
                 return render(request, 'accounts/confirm.html', args)
 
             # Если все условия соблюдены, то активируем юзера и выбрасываем сообщение об успешной активации
             user.is_active = True
             user.save()
-            args['success'] = "You have confirmed your email"
+            args['success'] = "Вы успешно подтвердили свой пароль! Можете войти на сайт"
             return render(request, 'accounts/confirm.html', args)
 
         # Ловим ошибку, если пользователь или его хеш не найдены.
@@ -205,11 +211,11 @@ class ConfirmEmailView(View):
     def resend_email(self):
         username = self.GET['username']
         user = User.objects.get(username=username)
-        SecretHashCode(user_id=user.pk,
-                       hashcode=''.join(
-                           random.choice(string.ascii_uppercase + string.digits) for _ in range(12)),
-                       expired_date=datetime.now(timezone.utc) + timedelta(minutes=60)
-                       ).save()
+        SecretHashCode(
+            user_id=user.pk,
+            hashcode=''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(12)),
+            expired_date=datetime.now(timezone.utc) + timedelta(minutes=60)
+        ).save()
         email = user.email
         hash_code = user.hashcode
         return send_email(type='resend', username=username, email=email, hash_code=hash_code)

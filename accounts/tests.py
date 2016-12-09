@@ -30,7 +30,7 @@ class LoginTest(TestCase):
 
     def test_admin_login_post(self):
         response = self.client.post('/accounts/login', {'username': 'administrator', 'password': 'Admin123'})
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 302)
 
 
 class RegisterTest(TestCase):

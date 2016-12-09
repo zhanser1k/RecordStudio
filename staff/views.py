@@ -30,8 +30,7 @@ class StaffLoginPageView(View):
                     user.groups.filter(name='Soundmans').exists():
                 auth.login(request, user)
                 return redirect('/staff/profile')
-            raise Http404()
-        else:
+
             args['login_error'] = "Ошибка авторизации"
             return render(request, "staff/loginPage.html", args)
 
@@ -86,11 +85,12 @@ class SoundmanAddView(View):
         args.update(csrf(request))
         new_user_form = SoundmanCreationForm(request.POST)
         if new_user_form.is_valid():
-            new_user = User.objects.create_user(username=new_user_form.cleaned_data['username'].lower(),
-                                                first_name=new_user_form.cleaned_data['first_name'],
-                                                last_name=new_user_form.cleaned_data['last_name'],
-                                                email=new_user_form.cleaned_data['email'],
-                                                )
+            new_user = User.objects.create_user(
+                username=new_user_form.cleaned_data['username'].lower(),
+                first_name=new_user_form.cleaned_data['first_name'],
+                last_name=new_user_form.cleaned_data['last_name'],
+                email=new_user_form.cleaned_data['email'],
+            )
             password = ForgetPasswordView()
             __new_password_of_soundman = password.password_generating_method()
             new_user.set_password(__new_password_of_soundman)
@@ -98,12 +98,14 @@ class SoundmanAddView(View):
             new_user.save()
             Group.objects.get(name='Soundmans').user_set.add(new_user)
 
-            return send_email(type='newsoundman',
-                              email=request.POST['email'],
-                              username=request.POST['username'],
-                              password=__new_password_of_soundman,
-                              first_name=request.POST['first_name'],
-                              last_name=request.POST['last_name'])
+            send_email(
+                type='newsoundman',
+                email=request.POST['email'],
+                username=request.POST['username'],
+                password=__new_password_of_soundman,
+                first_name=request.POST['first_name'],
+                last_name=request.POST['last_name']
+            )
 
         args['form'] = new_user_form
         return render_to_response('staff/soundmanAdd.html', args)
