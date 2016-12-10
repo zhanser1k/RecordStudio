@@ -31,8 +31,8 @@ class StaffLoginPageView(View):
                 auth.login(request, user)
                 return redirect('/staff/profile')
 
-            args['login_error'] = "Ошибка авторизации"
-            return render(request, "staff/loginPage.html", args)
+        args['login_error'] = "Ошибка авторизации"
+        return render(request, "staff/loginPage.html", args)
 
 
 # url: /profile
