@@ -17,7 +17,7 @@ def send_email(**kwargs):
         __hash_code = kwargs['hash_code']
         message = "http://recordstudio.pythonanywhere.com/accounts/confirm?username=%s&hash=%s" \
                   % (username, __hash_code)
-        args['register'] = "Вы успешно зарегестрировались на сайте. Осталось подтвердить email"
+        args['register'] = "Вы успешно зарегистрировались на сайте. Осталось подтвердить email"
 
     elif kwargs['type'] == 'newsoundman':
         subject = "Добро пожаловать"
