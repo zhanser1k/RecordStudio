@@ -1,99 +1,91 @@
 {%load staticfiles %}
 <html>
-	<head>
-		<link rel="stylesheet" href="{% static 'stopwatch-assets/flipclock.css' %}">
-		<meta charset="UTF-8">
-
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-
-		<script src="{% static 'stopwatch-assets/flipclock.js' %}"></script>
-	</head>
-	<body>
-	<main>
-		<div class="center">
-			<div class="clock" style="margin:2em;"></div>
-			<div class="message"><p>&nbsp</p></div>
-			<div class="button-center">
-				<div class="round-button">
-					<div class="round-button-circle">
-						<form method="POST" id="start">
-              {% csrf_token %}
-              <button class="round-button start" type="submit">Начать</button>
-            </form>
-						<form action="stop" method="POST">
-              {% csrf_token %}
-              <button class="round-button stop" style="display:none;" type="submit">Остановить</button>
-            </form>
-					</div>
-				</div>
-			</div>
-		</div>
-	</main>
-
-		<script type="text/javascript">
-			var clock;
-
-			$(document).ready(function() {
-				clock = $('.clock').FlipClock({
-					language: 'ru',
-					autoStart: false
-				});
-			});
-			$('.start').click(function(e) {
-		    	clock.start();
-		    	$(".start").hide();
-		    	$(".stop").show();
-		    });
-			$('.stop').click(function(e) {
-
-		    	clock.stop();
-		    });
-
-		</script>
-    <script type="text/javascript">
-      $(document).on('submit', '#start', function (e) {
-        e.preventDefault();
-        $.ajax({
-        type: 'POST',
-        url: '/records/{{ id }}/start',
-        data: {
-        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
-      },
-      success: function (data) {
-        $('.message').append(data);
-      },
-      failure: function(data){
-        $('.message').append(data);
-      }
-      });
-      console.log("form submitted!") // sanity check
-      });
-    </script>
-	</body>
-</html>
-<!-- <!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+	<link rel="stylesheet" href="{% static 'stopwatch-assets/flipclock.css' %}">
+	<meta charset="UTF-8">
+	
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	
+	<script src="{% static 'stopwatch-assets/flipclock.js' %}"></script>
 </head>
 <body>
-<form action="start" method="post">
-    {% csrf_token %}
-    <button type="submit">Start Record</button>
-</form>
-
-<form action="stop" method="post">
-    {% csrf_token %}
-    <button type="submit">Stop Record</button>
-
-    {%if againClicked%}
-        {{ againClicked }}
-    {%elif againStopped%}
-        {{ againStopped }}
-        {%elif mal%}
-            {{ mal }}
-    {% endif %}
-</form>
+	<main>
+		<div class="center">
+			<div class="clock"></div>
+			<div class="message">&nbsp</div>
+			<form method="post">
+				{% csrf_token %}
+				<div class="container_button start">
+					<div class="hole">
+						<div id="start" class="button">
+							<div class="triangle"></div>
+							<div class="lighter_triangle"></div>
+							<div class="darker_triangle"></div>
+						</div>
+					</div>
+				</div>
+			</form>
+			<form method="post">
+				{% csrf_token %}
+				<div class="container_button stop" style="display:none;">
+					<div class="hole">
+						<div id="stop" class="button">
+							<div class="shape"></div>
+							<div class="lighter_shape"></div>
+							<div class="darker_shape"></div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</main>
+	
+	<script type="text/javascript">
+	var clock;
+	$(document).ready(function() {
+		clock = $('.clock').FlipClock({
+			language: 'ru',
+			autoStart: false
+		});
+	});
+	$(document).on('click', '#start', function (e) {
+		e.preventDefault();
+		$.ajax({
+			type: 'POST',
+			url: '/records/{{ id }}/start',
+			data: {
+				csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+			},
+			success: function (data) {
+				$('.message').empty();
+				$('.message').append(data);
+				if(data == "Запись началась!")
+				{
+					clock.start();
+					$(".start").hide();
+					$(".stop").show();
+				}
+			}
+		});
+	});
+	$(document).on('click', '#stop', function (e) {
+		e.preventDefault();
+		$.ajax({
+			type: 'POST',
+			url: '/records/{{ id }}/stop',
+			data: {
+				csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+			},
+			success: function (data) {
+				$('.message').empty();
+				$('.message').append(data);
+				if(data == "Запись остановлена!")
+				{
+					clock.stop();
+				}
+			}
+		});
+	});
+	</script>
 </body>
-</html> -->
+</html>
