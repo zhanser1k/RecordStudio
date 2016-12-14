@@ -163,13 +163,16 @@ def create_booking(request, soundman_id):
 class RecordView:
     @permission_required("bookings.change_record", raise_exception=True)
     def details(self, booking_id):
+        context = {
+            'id': booking_id
+        }
         date_booking = Booking.objects.get(pk=booking_id).date
         if not date_booking == datetime.now().date():
             return HttpResponse(
                 "Сегодня не день брони! Бронь будет действительна %s"
                 % Booking.objects.get(pk=booking_id).date
             )
-        return render(self, "records/user_record_page.html")
+        return render(self, "records/user_record_page.html", context)
 
     @permission_required("bookings.change_record", raise_exception=True)
     def start_record_method(self, booking_id):
@@ -179,29 +182,25 @@ class RecordView:
             # reservationId = request.POST['id']
             try:
                 # Если статус брони = "отменен" / "завершен" то выбросит ошибку
-                if Booking.objects.get(pk=booking_id).is_active == 3 \
-                        or Booking.objects.get(pk=booking_id).is_active == 4:
-                    args['againClicked'] = "Бронь отменена или запись уже выполнена"
-                    return render(self, "records/user_record_page.html", args)
+                if Booking.objects.get(pk=booking_id).is_active == 4 \
+                        or Booking.objects.get(pk=booking_id).is_active == 5:
+                    return HttpResponse("Бронь отменена или уже завершена!")
 
                 # Если начало записи уже есть в БД то выбросит сообщение, что запись уже начата
                 elif Record.objects.get(reservation_id=booking_id).start_record is not None:
-                    args['againClicked'] = "Запись уже начата"
-                    return render(self, "records/user_record_page.html", args)
+                    return HttpResponse("Запись уже начата!")
 
                 # Проверка опоздал ли пользоватеь или нет
                 elif (datetime.now(timezone.utc) - Booking.objects.get(pk=booking_id).start) > timedelta(minutes=15):
-                    args['mal'] = "Пользователь опоздал на запись!"
-                    return render(self, "records/user_record_page.html", args)
+                    return HttpResponse("Пользователь опоздал!")
 
             except ObjectDoesNotExist:
                 # Проверка опоздал ли пользоватеь или нет
                 if datetime.combine(date.min, datetime.now().time()) - datetime.combine(
                         date.min, Booking.objects.get(
                             pk=booking_id
-                            ).start) > timedelta(minutes=15):
-                    args['mal'] = "Пользователь опоздал на запись!"
-                    return render(self, "records/user_record_page.html", args)
+                        ).start) > timedelta(minutes=15):
+                    return HttpResponse("Пользователь опоздал!")
 
                 _new_record = Record(reservation_id=booking_id, start_record=datetime.now(timezone.utc))
                 _new_record.save()
@@ -209,10 +208,9 @@ class RecordView:
                 _reservation = Booking.objects.get(pk=booking_id)
                 _reservation.is_active = 2
                 _reservation.save()
-                args['againClicked'] = "Начало записи"
-                return render(self, "records/user_record_page.html", args)
+                return HttpResponse('Запись началась!')
 
-        return redirect('/staff/profile')
+        return HttpResponse('Запись началась!')
 
     @permission_required("bookings.change_record", raise_exception=True)
     def stop_record_method(self, booking_id):
@@ -220,7 +218,11 @@ class RecordView:
             args = {}
             args.update(csrf(self))
             try:
-                # Если время окончание записи пуста
+                # Если статус брони = "отменен" / "завершен" то выбросит ошибку
+                if Booking.objects.get(pk=booking_id).is_active == 3 \
+                        or Booking.objects.get(pk=booking_id).is_active == 4:
+                    return HttpResponse("Бронь отменена или запись уже заверщена!")
+
                 if Record.objects.get(reservation_id=booking_id).stop_record is None:
                     _new_record = Record.objects.get(reservation_id=booking_id)
                     _new_record.stop_record = datetime.now(timezone.utc)
@@ -237,25 +239,15 @@ class RecordView:
                     _new_record.save()
 
                     _reservation = Booking.objects.get(pk=booking_id)
-                    _reservation.is_active = 3
+                    _reservation.is_active = 5
                     _reservation.save()
+                    return HttpResponse("Запись остановлена!")
 
-                    args['againStopped'] = "Запись остановлена"
-                    return render(self, "records/user_record_page.html", args)
+                else:
+                    return HttpResponse("Запись уже остановлена!")
 
-                # Если статус брони = "отменен" / "завершен" то выбросит ошибку
-                if Booking.objects.get(pk=booking_id).is_active == 3 \
-                        or Booking.objects.get(pk=booking_id).is_active == 4:
-                    args['againStopped'] = "Бронь отменена или запись уже выполнена"
-                    return render(self, "records/user_record_page.html", args)
-
-                args['againStopped'] = "Запись уже остановлена"
-                return render(self, "records/user_record_page.html", args)
             except ObjectDoesNotExist:
-                args['againStopped'] = "Начало записи отсутствует"
-                return render(self, "records/user_record_page.html", args)
-
-        return redirect('/accounts/my_profile')
+                return HttpResponse("Запись даже не начиналась")
 
 
 def cancel_booking(request, booking_id):
