@@ -1,4 +1,77 @@
-<!DOCTYPE html>
+{%load staticfiles %}
+<html>
+	<head>
+		<link rel="stylesheet" href="{% static 'stopwatch-assets/flipclock.css' %}">
+		<meta charset="UTF-8">
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+		<script src="{% static 'stopwatch-assets/flipclock.js' %}"></script>
+	</head>
+	<body>
+	<main>
+		<div class="center">
+			<div class="clock" style="margin:2em;"></div>
+			<div class="message"><p>&nbsp</p></div>
+			<div class="button-center">
+				<div class="round-button">
+					<div class="round-button-circle">
+						<form method="POST" id="start">
+              {% csrf_token %}
+              <button class="round-button start" type="submit">Начать</button>
+            </form>
+						<form action="stop" method="POST">
+              {% csrf_token %}
+              <button class="round-button stop" style="display:none;" type="submit">Остановить</button>
+            </form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+		<script type="text/javascript">
+			var clock;
+
+			$(document).ready(function() {
+				clock = $('.clock').FlipClock({
+					language: 'ru',
+					autoStart: false
+				});
+			});
+			$('.start').click(function(e) {
+		    	clock.start();
+		    	$(".start").hide();
+		    	$(".stop").show();
+		    });
+			$('.stop').click(function(e) {
+
+		    	clock.stop();
+		    });
+
+		</script>
+    <script type="text/javascript">
+      $(document).on('submit', '#start', function (e) {
+        e.preventDefault();
+        $.ajax({
+        type: 'POST',
+        url: '/records/{{ id }}/start',
+        data: {
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+      },
+      success: function (data) {
+        $('.message').append(data);
+      },
+      failure: function(data){
+        $('.message').append(data);
+      }
+      });
+      console.log("form submitted!") // sanity check
+      });
+    </script>
+	</body>
+</html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -23,4 +96,4 @@
     {% endif %}
 </form>
 </body>
-</html>
+</html> -->
