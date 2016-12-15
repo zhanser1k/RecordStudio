@@ -168,6 +168,10 @@ class RecordView:
         }
         date_booking = Booking.objects.get(pk=booking_id).date
         if not date_booking == datetime.now().date():
+            if date_booking < datetime.now().date():
+                _reservation = Booking.objects.get(pk=booking_id)
+                _reservation.is_active = 3
+                _reservation.save()
             return HttpResponse(
                 "Сегодня не день брони! Бронь будет действительна %s"
                 % Booking.objects.get(pk=booking_id).date
