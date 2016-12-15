@@ -3,9 +3,9 @@
 <head>
 	<link rel="stylesheet" href="{% static 'stopwatch-assets/flipclock.css' %}">
 	<meta charset="UTF-8">
-	
+
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	
+
 	<script src="{% static 'stopwatch-assets/flipclock.js' %}"></script>
 </head>
 <body>
@@ -39,7 +39,7 @@
 			</form>
 		</div>
 	</main>
-	
+
 	<script type="text/javascript">
 	var clock;
 	$(document).ready(function() {
@@ -65,6 +65,9 @@
 					$(".start").hide();
 					$(".stop").show();
 				}
+				else {
+					$('.message').append('<br><a href="/staff"> Выйти</a>');
+				}
 			}
 		});
 	});
@@ -79,6 +82,7 @@
 			success: function (data) {
 				$('.message').empty();
 				$('.message').append(data);
+				$('.message').append('<br><a href="/staff"> Выйти</a>');
 				if(data == "Запись остановлена!")
 				{
 					clock.stop();
